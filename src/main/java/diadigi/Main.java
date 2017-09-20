@@ -1,9 +1,12 @@
 package diadigi;
 
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
+import org.apache.commons.lang3.StringUtils;
+import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
+
+import java.io.IOException;
 
 public class Main {
     static {
@@ -11,14 +14,28 @@ public class Main {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
-    public static void main(String[] args) {
-        System.out.println("Welcome to OpenCV " + Core.VERSION);
-        Mat m = new Mat(5, 10, CvType.CV_8UC1, new Scalar(0));
-        System.out.println("OpenCV Mat: " + m);
-        Mat mr1 = m.row(1);
-        mr1.setTo(new Scalar(1));
-        Mat mc5 = m.col(5);
-        mc5.setTo(new Scalar(5));
-        System.out.println("OpenCV Mat data:\n" + m.dump());
+    public static void main(String[] args) throws IOException {
+        System.out.println("\nRunning DetectFaceDemo");
+        // Create a face detector from the cascade file in the resources
+        // directory.
+        CascadeClassifier faceDetector = new CascadeClassifier(getPathFor("/lbpcascade_frontalface.xml"));
+        Mat image = Imgcodecs.imread(getPathFor("/lena.png"));
+        // Detect faces in the image.
+        // MatOfRect is a special container class for Rect.
+        MatOfRect faceDetections = new MatOfRect();
+        faceDetector.detectMultiScale(image, faceDetections);
+        System.out.println(String.format("Detected %s faces", faceDetections.toArray().length));
+        // Draw a bounding box around each face.
+        for (Rect rect : faceDetections.toArray()) {
+            Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+        }
+        // Save the visualized detection.
+        String filename = "faceDetection.png";
+        System.out.println(String.format("Writing %s", filename));
+        Imgcodecs.imwrite(filename, image);
+    }
+
+    private static String getPathFor(String pathOnClasspath) {
+        return StringUtils.removeStart(Main.class.getResource(pathOnClasspath).getPath(), "/");
     }
 }

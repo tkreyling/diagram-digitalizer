@@ -18,6 +18,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:1.16.12"
 
     compile group: 'org.openpnp', name: 'opencv', version: '3.2.0-1'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
 
     testCompile "org.junit.jupiter:junit-jupiter-api:5.0.0-RC2"
     testCompile "org.junit.jupiter:junit-jupiter-params:5.0.0-RC2"
