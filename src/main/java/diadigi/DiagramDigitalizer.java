@@ -64,7 +64,7 @@ public class DiagramDigitalizer {
                     MatOfPoint parent = approximatedContours.get(parentIndex);
 
                     double delta = matchShapes(child, parent, CV_CONTOURS_MATCH_I1, 0);
-                    if (delta > 0.01) {
+                    if (delta > 0.02) {
                         result.add(approximatedContours.get(i));
                     }
                 }

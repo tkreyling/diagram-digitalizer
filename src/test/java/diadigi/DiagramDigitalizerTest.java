@@ -36,4 +36,9 @@ class DiagramDigitalizerTest {
     void two_rectangles_detected_if_image_contains_two_nested_rectangles() {
         assertEquals(2, detectContours("/nested-rectangles.jpg").size());
     }
+
+    @Test
+    void three_rectangles_detected_if_image_contains_three_narrow_nested_rectangles() {
+        assertEquals(3, detectContours("/narrow-nested-rectangles.jpg").size());
+    }
 }
