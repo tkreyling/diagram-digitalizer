@@ -26,4 +26,9 @@ class DiagramDigitalizerTest {
     void one_rectangle_detected_if_image_contains_one_rectangle() {
         assertEquals(1, detectContours("/one-rectangle.jpg").size());
     }
+
+    @Test
+    void two_rectangles_detected_if_image_contains_two_rectangles() {
+        assertEquals(2, detectContours("/two-rectangles.jpg").size());
+    }
 }
