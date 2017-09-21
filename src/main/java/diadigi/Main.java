@@ -3,10 +3,13 @@ package diadigi;
 import org.apache.commons.lang3.StringUtils;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.opencv.imgcodecs.Imgcodecs.*;
+import static org.opencv.imgproc.Imgproc.*;
 
 public class Main {
     static {
@@ -15,24 +18,25 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("\nRunning DetectFaceDemo");
-        // Create a face detector from the cascade file in the resources
-        // directory.
-        CascadeClassifier faceDetector = new CascadeClassifier(getPathFor("/lbpcascade_frontalface.xml"));
-        Mat image = Imgcodecs.imread(getPathFor("/lena.png"));
-        // Detect faces in the image.
-        // MatOfRect is a special container class for Rect.
-        MatOfRect faceDetections = new MatOfRect();
-        faceDetector.detectMultiScale(image, faceDetections);
-        System.out.println(String.format("Detected %s faces", faceDetections.toArray().length));
-        // Draw a bounding box around each face.
-        for (Rect rect : faceDetections.toArray()) {
-            Imgproc.rectangle(image, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(0, 255, 0));
+        Mat image = imread(getPathFor("/IMG_1879_low-res.JPG"));
+        Mat gray = imread(getPathFor("/IMG_1879_low-res.JPG"), 0);
+
+        Mat threshold = new Mat();
+        threshold(gray, threshold, 180,255,1);
+        Imgcodecs.imwrite("threshold.jpg", threshold);
+        blur(threshold, threshold, new Size(5,5) );
+        Imgcodecs.imwrite("blur.jpg", threshold);
+
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        findContours(threshold, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0,0));
+
+        for (int i = 0; i < contours.size(); i++) {
+            Scalar color = new Scalar(0, 255, 0);
+            drawContours(image, contours, i, color, 2, 8, hierarchy, 0, new Point(10,10));
         }
-        // Save the visualized detection.
-        String filename = "faceDetection.png";
-        System.out.println(String.format("Writing %s", filename));
-        Imgcodecs.imwrite(filename, image);
+
+        Imgcodecs.imwrite("test.jpg", image);
     }
 
     private static String getPathFor(String pathOnClasspath) {
