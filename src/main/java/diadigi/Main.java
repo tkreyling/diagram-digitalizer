@@ -5,6 +5,7 @@ import org.opencv.core.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.opencv.imgcodecs.Imgcodecs.*;
@@ -22,17 +23,29 @@ public class Main {
 
         Mat threshold = new Mat();
         threshold(gray, threshold, 180,255,1);
-        imwrite("threshold.jpg", threshold);
-        blur(threshold, threshold, new Size(5,5) );
-        imwrite("blur.jpg", threshold);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         findContours(threshold, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0,0));
 
         for (int i = 0; i < contours.size(); i++) {
-            Scalar color = new Scalar(0, 255, 0);
-            drawContours(image, contours, i, color, 2, 8, hierarchy, 0, new Point(10,10));
+            MatOfPoint matOfPoint = contours.get(i);
+
+            if (matOfPoint.rows() > 3) {
+                MatOfPoint2f matOfPoint2f = new MatOfPoint2f(matOfPoint.toArray());
+                MatOfPoint2f approximatedPoly2f = new MatOfPoint2f();
+                approxPolyDP(matOfPoint2f, approximatedPoly2f, 10, true);
+
+                drawContours(image, contours, i, new Scalar(0, 255, 0), 2, 8, hierarchy, 0, new Point(10,10));
+                MatOfPoint approximatedPoly = new MatOfPoint(approximatedPoly2f.toArray());
+                drawContours(
+                        image, Collections.singletonList(approximatedPoly), 0,
+                        new Scalar(0, 0, 255), 2, 8, new Mat(),
+                        0, new Point(-10,-10));
+
+                System.out.println(matOfPoint2f + ", " + matOfPoint2f.cols() + ", " + matOfPoint2f.rows());
+                System.out.println(approximatedPoly + ", " + approximatedPoly.cols() + ", " + approximatedPoly.rows());
+            }
         }
 
         imwrite("test.jpg", image);
