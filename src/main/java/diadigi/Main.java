@@ -2,7 +2,6 @@ package diadigi;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,9 +22,9 @@ public class Main {
 
         Mat threshold = new Mat();
         threshold(gray, threshold, 180,255,1);
-        Imgcodecs.imwrite("threshold.jpg", threshold);
+        imwrite("threshold.jpg", threshold);
         blur(threshold, threshold, new Size(5,5) );
-        Imgcodecs.imwrite("blur.jpg", threshold);
+        imwrite("blur.jpg", threshold);
 
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
@@ -36,7 +35,7 @@ public class Main {
             drawContours(image, contours, i, color, 2, 8, hierarchy, 0, new Point(10,10));
         }
 
-        Imgcodecs.imwrite("test.jpg", image);
+        imwrite("test.jpg", image);
     }
 
     private static String getPathFor(String pathOnClasspath) {
