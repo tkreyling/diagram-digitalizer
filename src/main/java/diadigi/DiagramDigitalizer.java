@@ -9,6 +9,7 @@ import java.util.*;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.opencv.imgcodecs.Imgcodecs.imread;
 import static org.opencv.imgproc.Imgproc.*;
@@ -44,11 +45,28 @@ public class DiagramDigitalizer {
                 Imgcodecs.imwrite("result-" + i + "-" + removeStart(pathToImage, "/"), originalImage);
             }
 
+            List<MatOfPoint> approximatedContours = contours.stream()
+                    .map(matOfPoint -> {
+                        MatOfPoint2f matOfPoint2f = new MatOfPoint2f(matOfPoint.toArray());
+                        MatOfPoint2f approximatedPoly2f = new MatOfPoint2f();
+                        approxPolyDP(matOfPoint2f, approximatedPoly2f, 10, true);
+                        return new MatOfPoint(approximatedPoly2f.toArray());
+                    })
+                    .collect(toList());
+
             List<MatOfPoint> result = new ArrayList<>();
-            for (int i = 0; i < contours.size(); i++) {
+            for (int i = 0; i < approximatedContours.size(); i++) {
                 int parentIndex = (int) hierarchy.get(0, i)[INDEX_OF_PARENT];
                 if (parentIndex < 0) {
-                    result.add(contours.get(i));
+                    result.add(approximatedContours.get(i));
+                } else {
+                    MatOfPoint child = approximatedContours.get(i);
+                    MatOfPoint parent = approximatedContours.get(parentIndex);
+
+                    double delta = matchShapes(child, parent, CV_CONTOURS_MATCH_I1, 0);
+                    if (delta > 0.01) {
+                        result.add(approximatedContours.get(i));
+                    }
                 }
             }
 
