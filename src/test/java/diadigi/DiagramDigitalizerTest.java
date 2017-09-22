@@ -68,4 +68,12 @@ class DiagramDigitalizerTest {
         assertEquals(1, contours.size());
         assertEquals(5, contours.get(0).toList().size());
     }
+
+    @Test
+    void three_rectangles_detected_on_scanned_diagram() {
+        List<MatOfPoint> contours = detectContours("/scanned-diagram.jpg");
+
+        assertEquals(7, contours.size());
+        contours.forEach(contour -> assertEquals(4, contour.toList().size()));
+    }
 }

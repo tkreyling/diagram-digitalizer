@@ -33,17 +33,11 @@ public class DiagramDigitalizer {
             Mat gray = imread(path, 0);
 
             Mat threshold = new Mat();
-            threshold(gray, threshold, 180,255, THRESH_BINARY_INV);
+            threshold(gray, threshold, 140,255, THRESH_BINARY_INV);
 
             List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
-            findContours(threshold, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, new Point(0,0));
-
-            for (int i = 0; i < contours.size(); i++) {
-                Mat originalImage = imread(path);
-                drawContours(originalImage, contours, i, COLORS.get(i % COLORS.size()), 2, 8, hierarchy, 0, new Point(0,0));
-                Imgcodecs.imwrite("result-" + i + "-" + removeStart(pathToImage, "/"), originalImage);
-            }
+            findContours(threshold, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE, new Point(0,0));
 
             List<MatOfPoint> approximatedContours = contours.stream()
                     .map(matOfPoint -> {
@@ -59,15 +53,13 @@ public class DiagramDigitalizer {
                 int parentIndex = (int) hierarchy.get(0, i)[INDEX_OF_PARENT];
                 if (parentIndex < 0) {
                     result.add(approximatedContours.get(i));
-                } else {
-                    MatOfPoint child = approximatedContours.get(i);
-                    MatOfPoint parent = approximatedContours.get(parentIndex);
-
-                    double delta = matchShapes(child, parent, CV_CONTOURS_MATCH_I1, 0);
-                    if (delta > 0.02) {
-                        result.add(approximatedContours.get(i));
-                    }
                 }
+            }
+
+            for (int i = 0; i < result.size(); i++) {
+                Mat originalImage = imread(path);
+                drawContours(originalImage, result, i, COLORS.get(i % COLORS.size()), 2, 8, hierarchy, 0, new Point(0,0));
+                Imgcodecs.imwrite("result-" + i + "-" + removeStart(pathToImage, "/"), originalImage);
             }
 
             return result;
