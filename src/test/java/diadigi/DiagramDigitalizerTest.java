@@ -60,4 +60,12 @@ class DiagramDigitalizerTest {
         assertEquals(1, contours.size());
         assertEquals(5, contours.get(0).toList().size());
     }
+
+    @Test
+    void one_pentagon_detected_if_image_contains_one_hand_drawn_pentagon() {
+        List<MatOfPoint> contours = detectContours("/one-hand-drawn-pentagon.jpg");
+
+        assertEquals(1, contours.size());
+        assertEquals(5, contours.get(0).toList().size());
+    }
 }
