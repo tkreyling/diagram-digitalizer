@@ -10,8 +10,9 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.opencv.imgcodecs.Imgcodecs.imread;
+import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static org.opencv.imgproc.Imgproc.*;
 
 public class DiagramDigitalizer {
@@ -32,12 +33,29 @@ public class DiagramDigitalizer {
         return getPathFor(pathToImage).map(path -> {
             Mat gray = imread(path, 0);
 
+            String filename =  substringBeforeLast(removeStart(pathToImage, "/") , ".");
+            String format =  substringAfterLast(pathToImage , ".");
+
+            imwrite(filename + "-01-gray." + format, gray);
+
+            for (int i = 90; i <= 195; i += 15) {
+                Mat threshold = new Mat();
+                threshold(gray, threshold, i,255, THRESH_BINARY_INV);
+                imwrite(filename + "-02-threshold-" + i + "." + format, threshold);
+            }
+
             Mat threshold = new Mat();
             threshold(gray, threshold, 140,255, THRESH_BINARY_INV);
 
             List<MatOfPoint> contours = new ArrayList<>();
             Mat hierarchy = new Mat();
             findContours(threshold, contours, hierarchy, RETR_CCOMP, CHAIN_APPROX_SIMPLE, new Point(0,0));
+
+            for (int i = 0; i < contours.size(); i++) {
+                Mat originalImage = imread(path);
+                drawContours(originalImage, contours, i, COLORS.get(0), 2, 8, hierarchy, 0, new Point(0,0));
+                imwrite(filename + "-03-contours-" + i + "." + format, originalImage);
+            }
 
             List<MatOfPoint> approximatedContours = contours.stream()
                     .map(matOfPoint -> {
@@ -58,8 +76,8 @@ public class DiagramDigitalizer {
 
             for (int i = 0; i < result.size(); i++) {
                 Mat originalImage = imread(path);
-                drawContours(originalImage, result, i, COLORS.get(i % COLORS.size()), 2, 8, hierarchy, 0, new Point(0,0));
-                Imgcodecs.imwrite("result-" + i + "-" + removeStart(pathToImage, "/"), originalImage);
+                drawContours(originalImage, result, i, COLORS.get(0), 2, 8, hierarchy, 0, new Point(0,0));
+                imwrite(filename + "-04-approximated-contours-" + i + "." + format, originalImage);
             }
 
             return result;

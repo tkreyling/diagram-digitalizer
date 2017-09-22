@@ -70,7 +70,7 @@ class DiagramDigitalizerTest {
     }
 
     @Test
-    void three_rectangles_detected_on_scanned_diagram() {
+    void seven_rectangles_detected_on_scanned_diagram() {
         List<MatOfPoint> contours = detectContours("/scanned-diagram.jpg");
 
         assertEquals(7, contours.size());
