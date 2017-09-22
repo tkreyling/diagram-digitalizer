@@ -1,6 +1,9 @@
 package diadigi;
 
 import org.junit.jupiter.api.Test;
+import org.opencv.core.MatOfPoint;
+
+import java.util.List;
 
 import static diadigi.DiagramDigitalizer.detectContours;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,5 +43,13 @@ class DiagramDigitalizerTest {
     @Test
     void three_rectangles_detected_if_image_contains_three_narrow_nested_rectangles() {
         assertEquals(3, detectContours("/narrow-nested-rectangles.jpg").size());
+    }
+
+    @Test
+    void one_rectangle_detected_if_image_contains_one_hand_drawn_rectangle() {
+        List<MatOfPoint> contours = detectContours("/hand-drawn-rectangle.jpg");
+
+        assertEquals(1, contours.size());
+        assertEquals(4, contours.get(0).toList().size());
     }
 }
