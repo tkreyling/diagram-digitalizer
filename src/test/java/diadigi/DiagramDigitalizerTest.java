@@ -52,4 +52,12 @@ class DiagramDigitalizerTest {
         assertEquals(1, contours.size());
         assertEquals(4, contours.get(0).toList().size());
     }
+
+    @Test
+    void one_pentagon_detected_if_image_contains_one_pentagon() {
+        List<MatOfPoint> contours = detectContours("/one-pentagon.jpg");
+
+        assertEquals(1, contours.size());
+        assertEquals(5, contours.get(0).toList().size());
+    }
 }
